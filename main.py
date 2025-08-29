@@ -45,16 +45,27 @@ def read_root():
     # list all pods
     v1_api = client.CoreV1Api()
     pods = cast(V1PodList, v1_api.list_pod_for_all_namespaces(watch=False))
-
     items = []
     for pod in cast(list[V1Pod], pods.items):
         meta = cast(Optional[V1ObjectMeta], pod.metadata)
         name = getattr(meta, "name", "unknown")
         namespace = getattr(meta, "namespace", "default")
-        href = f"/logs/{namespace}/{name}"
-        items.append(f'<li><a href="{href}">{namespace}/{name}</a></li>')
-    html = "<html><body><h1>Pods</h1><ul>" + \
-        "\n".join(items) + "</ul></body></html>"
+        # list containers within the pod
+        conts = []
+        spec = getattr(pod, "spec", None)
+        if spec and getattr(spec, "containers", None):
+            for c in spec.containers:
+                cname = getattr(c, "name", "")
+                href = f"/logs/{namespace}/{name}/{cname}"
+                conts.append(f'<li><a href="{href}">{namespace}/{name}:{cname}</a></li>')
+        else:
+            # fallback link to pod-level logs
+            href = f"/logs/{namespace}/{name}"
+            conts.append(f'<li><a href="{href}">{namespace}/{name}</a></li>')
+
+        items.extend(conts)
+
+    html = "<html><body><h1>Pod containers</h1><ul>" + "\n".join(items) + "</ul></body></html>"
     return html
 
 
@@ -74,5 +85,12 @@ def get_pod_logs(namespace: str, pod_name: str, container: Optional[str] = None,
 
 
 @app.get("/logs/{namespace}/{pod_name}", response_class=fastapi.responses.PlainTextResponse)
-def get_pod_logs2(namespace: str, pod_name: str):
-    return get_pod_logs(namespace, pod_name)
+def get_pod_logs2(namespace: str, pod_name: str, container: Optional[str] = None):
+    """Return logs for a pod. Optional query param `container` selects a container."""
+    return get_pod_logs(namespace, pod_name, container=container)
+
+
+@app.get("/logs/{namespace}/{pod_name}/{container}", response_class=fastapi.responses.PlainTextResponse)
+def get_pod_container_logs(namespace: str, pod_name: str, container: str):
+    """Return logs for a specific container in a pod."""
+    return get_pod_logs(namespace, pod_name, container=container)
