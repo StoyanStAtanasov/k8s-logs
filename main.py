@@ -9,9 +9,11 @@ from contextlib import asynccontextmanager
 logging.basicConfig(level=logging.INFO)
 from fastapi.logger import logger
 
+version = "v1.1"
+
 @asynccontextmanager
 async def lifespan(app: fastapi.FastAPI):
-    logger.info("K8S Logs v1 starting")
+    logger.info(f"K8S Logs {version} starting")
     try:
         config.load_incluster_config()
         logger.info("Loaded in-cluster kube config")
@@ -65,7 +67,7 @@ def read_root():
 
         items.extend(conts)
 
-    html = "<html><body><h1>Pod containers</h1><ul>" + "\n".join(items) + "</ul></body></html>"
+    html = f"<html><body><h1>Pod containers {version}</h1><ul>" + "\n".join(items) + "</ul></body></html>"
     return html
 
 
