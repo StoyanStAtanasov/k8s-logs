@@ -25,4 +25,4 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ghcr.io/${{ toLower(github.repository) }}:v1.1.0
+          tags: ghcr.io/stoyanstatanasov/k8s-logs:v1.1.0
