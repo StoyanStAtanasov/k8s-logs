@@ -1,3 +1,5 @@
+# deprecated now is built with github actions and pushed to ghcr.io
+
 echo "Building and pushing Docker image to Minikube..."
 docker build -t k8s-logs:latest .
 

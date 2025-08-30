@@ -43,8 +43,8 @@ spec:
       serviceAccountName: k8s-logs-sa
       containers:
         - name: app
-          image: k8s-logs:latest
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/stoyanstatanasov/k8s-logs:v1.1.0
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 80
