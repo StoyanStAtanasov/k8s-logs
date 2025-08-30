@@ -13,6 +13,10 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+      - name: Read version
+        id: version
+        run: |
+          echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to GHCR
@@ -25,4 +29,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ghcr.io/stoyanstatanasov/k8s-logs:v1.1.0
+          tags: |
+            ghcr.io/stoyanstatanasov/k8s-logs:${{ steps.version.outputs.VERSION }}
+            ghcr.io/stoyanstatanasov/k8s-logs:latest

@@ -1,10 +1,13 @@
 # deprecated now is built with github actions and pushed to ghcr.io
 
-echo "Building and pushing Docker image to Minikube..."
-docker build -t k8s-logs:latest .
+VERSION=$(cat VERSION)
+IMAGE="ghcr.io/stoyanstatanasov/k8s-logs:${VERSION}"
+
+echo "Building Docker image ${IMAGE}..."
+docker build -t "${IMAGE}" .
 
 echo "Loading Docker image into Minikube..."
-minikube image load k8s-logs:latest
+minikube image load "${IMAGE}"
 
 echo "Applying Kubernetes manifests..."
 kubectl apply -f deploy.yml

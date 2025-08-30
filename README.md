@@ -30,7 +30,7 @@ Two common flows:
 A) Build into Minikube's docker daemon (recommended):
 ```bash
 eval "$(minikube docker-env)"
-docker build -t k8s-logs:latest .
+docker build -t ghcr.io/stoyanstatanasov/k8s-logs:$(cat VERSION) .
 kubectl apply -f deploy.yml
 kubectl rollout restart deployment k8s-logs
 kubectl rollout status deployment k8s-logs
@@ -57,6 +57,10 @@ rules:
     resources: ["pods","pods/log"]
     verbs: ["get","list","watch"]
 ```
+
+## Versioning
+- Single source of truth is the `VERSION` file. The app reads it at runtime, CI tags images from it, and `deploy.yml` pins the same tag.
+- To release a new version, bump `VERSION`, push to `main`, and update `deploy.yml` if you maintain a pinned tag there.
 
 ## Endpoints and probes
 - `/` — HTML list of pods with links to their logs endpoint.

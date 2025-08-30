@@ -5,11 +5,18 @@ from kubernetes.client.models import V1Pod, V1PodList, V1ObjectMeta
 from kubernetes.config.config_exception import ConfigException
 from kubernetes import client, config
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
 from fastapi.logger import logger
 
-version = "v1.1"
+def _read_version() -> str:
+    try:
+        return Path(__file__).with_name("VERSION").read_text(encoding="utf-8").strip()
+    except Exception:
+        return "v0.0.0"
+
+version = _read_version()
 
 @asynccontextmanager
 async def lifespan(app: fastapi.FastAPI):
@@ -27,7 +34,7 @@ async def lifespan(app: fastapi.FastAPI):
     try:
         yield
     finally:
-        logger.info("K8S Logs v1 stopping")
+        logger.info(f"K8S Logs {version} stopping")
 
 app = fastapi.FastAPI(lifespan=lifespan)
 
